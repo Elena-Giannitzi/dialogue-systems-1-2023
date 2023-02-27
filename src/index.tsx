@@ -223,6 +223,20 @@ const machine = createMachine(
         console.log(`(repaiting to ${color})`);
         document.body.style.backgroundColor = color;
       },
+      playVideo: (context) => {
+        if (context.personIs === "Tom Holland") {
+          window.open(`https://www.youtube.com/@Spiderman}`,"_blank")
+        } else if (context.personIs === "Marilyn Monroe") {
+          window.open(`https://www.youtube.com/@marilynmonroevideoarchives}`,"_blank")
+        } else if (context.personIs === "first aid kit") {
+          window.open(`https://www.youtube.com/@firstaidkitband}`,"_blank")
+        }
+        else {
+        window.open(`https://www.youtube.com/@${context.personIs.replace(" ","")}`,"_blank")}
+      },
+      playMusic: (context) => {
+        window.open("https://open.spotify.com/playlist/37i9dQZF1DWTwnEm1IYyoj","_blank")
+      },
     },
   }
 );

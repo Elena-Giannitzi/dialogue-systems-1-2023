@@ -58,6 +58,11 @@ interface SDSContext {
   answerWho: any;
   affirm:any;
   info: any;
+  prediction:any;
+  topIntent:any;
+  name: any;
+  text:any;
+  entities:any;
 }
 
 type SDSEvent =
