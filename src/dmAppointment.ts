@@ -266,15 +266,17 @@ interface Grammar {
 
 // // asking for user's name not needed
 
-// const getEntity = (context: SDSContext, entity: string) => {
-//   // lowercase the utterance and remove tailing "."
-//   // let u = context.recResult[0].utterance.toLowerCase().replace(/\.$/g, "");
-//   // if (u in grammar) {
-//   //   if (entity in grammar[u].entities) {
-//   //     return grammar[u].entities[entity];}
-//   }
-//   return false;
-// };
+const getEntity = (context: SDSContext, category: string) => {
+  const result = [];
+  const entities = context.nluResult.prediction.entities
+  for (let i = 0; i < entities.length; i++) {
+    if (entities[i].category === category) {
+      result.push(entities[i].text);
+      return result
+    }
+  }
+  return false;
+};
 
 //replacing the grammar with intent: 
 
@@ -379,13 +381,13 @@ export const dmMachine: MachineConfig<SDSContext, any, SDSEvent> = {
         RECOGNISED: [
           {
             target: "optionMeeting",
-            cond: (context) => getIntent(context) === "create a meeting",
+            cond: (context) => getIntent(context) === "create a meeting" || getIntent(context) === "schedule a meeting",
             actions: assign({
               answer: (context) => {return context.nluResult.query} //context.recResult[0].utterance
             }),
           },
           { target: ".info",
-            cond: (context) => getIntent(context) === "who is x",   //context.recResult[0].utterance.replace(/\.$/g, "").replace("Who is ", "").replace("What do you know about ","").replace("Tell me about ","").replace("What is a ","").replace("What's a ", "").replace("?","").replace(/\.$/g, "")
+            cond: (context) => !!getEntity(context, "CelebName"),   //context.recResult[0].utterance.replace(/\.$/g, "").replace("Who is ", "").replace("What do you know about ","").replace("Tell me about ","").replace("What is a ","").replace("What's a ", "").replace("?","").replace(/\.$/g, "")
             actions: assign({personIs:  
               (context) => {return context.nluResult.prediction.entities[0].text.replace("é","e").replace(/\.$/g, "")}
             }),          
@@ -574,9 +576,15 @@ export const dmMachine: MachineConfig<SDSContext, any, SDSEvent> = {
         RECOGNISED: [
           {
             target: "info",
-            cond: (context ) => getIntent(context) === "create a meeting" ,
+            cond: (context ) => !!getEntity(context, "meeting"),
             actions: assign({
               title: (context) => context.nluResult.prediction.entities[0].text.replace(/\.$/g, ""),
+            }),
+          },
+          {
+            target: "info",
+            actions: assign({
+              title: (context) => context.nluResult.query.replace(/\.$/g, ""),
             }),
           },
           {
@@ -614,7 +622,7 @@ export const dmMachine: MachineConfig<SDSContext, any, SDSEvent> = {
         RECOGNISED: [
           {
             target: "date",
-            cond: (context) => getIntent(context) === "day",
+            cond: (context) => !!getEntity(context, "dayOfMeeting"),
             actions: assign({
               day: (context) => context.nluResult.prediction.entities[0].text.replace(/\.$/g, ""),
             }), 
@@ -753,7 +761,7 @@ export const dmMachine: MachineConfig<SDSContext, any, SDSEvent> = {
         RECOGNISED: [
           {
             target: "time",
-            cond: (context) => getIntent(context) === "time",
+            cond: (context) => !!getEntity(context, "timeOfMeeting"),
             actions: assign({
               time: (context) => context.nluResult.prediction.entities[0].text.replace(/\.$/g, ""),
             }), 
@@ -793,7 +801,7 @@ export const dmMachine: MachineConfig<SDSContext, any, SDSEvent> = {
         RECOGNISED: [
           {
             target: "meetday",
-            cond: (context) => getIntent(context) === "part of day",
+            cond: (context) => !!getEntity(context, "daytime"),
             actions: assign({
               daytime: (context) => context.nluResult.prediction.entities[0].text,
             }), 
