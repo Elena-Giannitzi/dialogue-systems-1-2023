@@ -1,0 +1,20 @@
+Hello there, I am your new Personal Assistant. . What would you like to do?
+I would like to take a look at my calendar.
+Hmm... give me a second please. 
+Alright...
+I have now your calendar open for you.Would you like to make a new entry, or shall I tell you today's schedule?
+I would like to make a new entry.
+New entry coming right up! When is this new event taking place? 
+uh, on March 15th
+Uh huh, and at what time would you like to start the event?
+Let's say at 9 am!
+And done! How much time do you think I should block out?
+About 2 hours would do.
+Alright, and how should I name the new entry?
+Project Meeting.
+Okay, would you like me to create an entry titled: "Project Meeting" , for March 15th from 9 to 11 am?
+Yes please!
+Great! You're new entry has been added to the calendar. I'll remind you 1 day before the event. Have a nice day!
+
+
+
