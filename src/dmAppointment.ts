@@ -761,9 +761,9 @@ export const dmMachine: MachineConfig<SDSContext, any, SDSEvent> = {
         RECOGNISED: [
           {
             target: "time",
-            cond: (context) => !!getEntity(context, "timeOfMeeting"),
+            cond: (context) => getIntent(context) === "time",
             actions: assign({
-              time: (context) => context.nluResult.prediction.entities[0].text.replace(/\.$/g, ""),
+              time: (context) => context.nluResult.query,
             }), 
           },
           {
