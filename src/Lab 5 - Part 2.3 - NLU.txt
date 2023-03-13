@@ -1,0 +1,224 @@
+// Part 2.3 here in prose and code ideas: 
+// Question: Can you implement a similar threshold for natural language understanding? How can 
+//it be combined with the ASR threshold? Justify your choice and provide a sketch implementation.
+
+//Answer: For this part I thought of using the getIntent function and getEntity functio (the later probably with a different name now) I created for Lab4. 
+//In more detail, I was thinking of checkig the confidence score in the entities and intents the system would pick up from the azure (nluResult). 
+//That way, we could deal with unexpected input as if we already have it. For instance, in my azure grammar, I have the phrase "I would like to create a dinner date" with
+// the words dinner date being the entities. That means that we could change this 2 words with any 2 word sequence like coffee date, doctor meeting, etc. The app would be
+//more prepared when handling user input and less confused. Of course there would be cases where we would still have the no match state appearing. However this times will be way
+//less in count than just usig the regular grammar, I do now. My idea of the code was something like this: 
+
+//context.nluResult.prediction.entities[0].confidenceScore >= 1 then continue to the next state
+//or context.nluResult.prediction.entities[0].confidenceScore < 1 then move the confirmation state => Did you mean that? Are you sure you would like that? etc...
+//we could also do it with changing the entities with intents like so: 
+//context.nluResult.prediction.intents[0].confidenceScore >= 1 then continue to the next state
+//context.nluResult.prediction.intents[0].confidenceScore < 1 or move to the confirmation state => Did you mean that? Are you sure you would like that? etc...
+
+//so a full example of the code for part 3 is for example the create a meeting state we could have something like this: 
+/* const getEntityNLU = (context: SDSContext, category: string) => {
+  const result = [];
+  const entities = context.nluResult.prediction.entities
+  for (let i = 0; i < entities.length; i++) {
+    if (entities[i].category === category) {
+      result.push(entities[i].text.replace("é","e").replace(/\.$/g, ""));
+      return result
+    }
+  }
+  return false;
+};
+
+organizeMeeting: {
+      initial: "prompt",
+      on: {
+        RECOGNISED: [
+          {
+            target: "info",
+            cond: (context ) => !!getEntity(context, "meeting") && context.nluResult.prediction.entities[0].confidenceScore >= 1,
+            actions: assign({
+              title: (context) => context.nluResult.prediction.entities[0].text.replace(/\.$/g, ""),
+            }),
+          },
+          {
+            target: "ConfirmMeetingTitle", //the confirmation state
+            cond: (context ) => !!getEntity(context, "meeting") && context.nluResult.prediction.entities[0].confidenceScore < 1,
+            actions: assign({
+              title: (context) => context.nluResult.prediction.entities[0].text.replace(/\.$/g, ""),
+            }),
+          },
+          {
+            target: "info",
+            actions: assign({
+              title: (context) => context.nluResult.query.replace(/\.$/g, ""),
+            }),
+          },
+          {
+            target: ".nomatch",
+          },
+        ],
+        TIMEOUT: ".prompt",
+      },
+      states:{
+            noinput:{
+              id: "noinput",
+              entry: [say(
+                "I'm afraid I don't hear you."
+              )],
+              on: { ENDSPEECH: "prompt" },
+            },
+            ...promptFunction("What kind of meeting is it?","How would you like your meeting to be called?","Last chance! What kind of meeting is it?"),
+            nomatch: {
+              id: "nomatch",
+              entry: say("Sorry, I'm afraid I didn't hear you. Could you please speak a bit more clear and slow?"),
+              on: { ENDSPEECH: "prompt" },
+            },
+            },
+        },
+      ConfirmMeetingTitle: {
+      initial: "prompt",
+      on: {
+        RECOGNISED: [
+          {
+            target: "info",
+            cond: (context ) => getIntent(context) === "reject" // in states like this one that use the getIntent function we could use the context.nluResult.prediction.intents[0].confidenceScore < 1, and/or >= 1 respectively.
+            actions: assign({
+              title: (context) => context.nluResult.query.replace(/\.$/g, ""),
+            }),
+          },
+          {
+            target: "organizeMeeting", //the confirmation state
+            cond: (context ) => getIntent(context) === "reject",
+            actions: assign({
+              title: (context) => context.nluResult.query.replace(/\.$/g, ""),
+            }),
+          },
+          {
+            target: ".nomatch",
+          },
+        ],
+        TIMEOUT: ".prompt",
+      },
+      states:{
+            noinput:{
+              id: "noinput",
+              entry: [say(
+                "I'm afraid I don't hear you."
+              )],
+              on: { ENDSPEECH: "prompt" },
+            },
+            ...promptFunction("Are you sure about your meetings title?", "Would you like to proceed?","Are you sure you would not like to change your meeting?"),
+            nomatch: {
+              id: "nomatch",
+              entry: say("Sorry, I'm afraid I didn't hear you. Could you please speak a bit more clear and slow?"),
+              on: { ENDSPEECH: "prompt" },
+            },
+            },
+        },
+    info: { // the next state
+      entry: send((context) => ({
+        type: "SPEAK",
+        value: `OK, ${context.title}`,
+      })),
+      on: { ENDSPEECH: "askDate" },
+      },
+*/
+
+//I also tried to implement a mix of both for example using the getEntityNLU function and the context.recResult[0].confidence > 0.8 and context.recResult[0].confidence <= 0.8. But, I wasn't sure if something like this was correct, that's why I took it out. The example of the second code was this: 
+
+organizeMeeting: {
+      initial: "prompt",
+      on: {
+        RECOGNISED: [
+          {
+            target: "info",
+            cond: (context ) => !!getEntity(context, "meeting") && context.recResult[0].confidence > 0.8,
+            actions: assign({
+              title: (context) => context.nluResult.prediction.entities[0].text.replace(/\.$/g, ""),
+            }),
+          },
+          {
+            target: "ConfirmMeetingTitle", //the confirmation state
+            cond: (context ) => !!getEntity(context, "meeting") && context.recResult[0].confidence <= 0.8,
+            actions: assign({
+              title: (context) => context.nluResult.prediction.entities[0].text.replace(/\.$/g, ""),
+            }),
+          },
+          {
+            target: "info",
+            actions: assign({
+              title: (context) => context.nluResult.query.replace(/\.$/g, ""),
+            }),
+          },
+          {
+            target: ".nomatch",
+          },
+        ],
+        TIMEOUT: ".prompt",
+      },
+      states:{
+            noinput:{
+              id: "noinput",
+              entry: [say(
+                "I'm afraid I don't hear you."
+              )],
+              on: { ENDSPEECH: "prompt" },
+            },
+            ...promptFunction("What kind of meeting is it?","How would you like your meeting to be called?","Last chance! What kind of meeting is it?"),
+            nomatch: {
+              id: "nomatch",
+              entry: say("Sorry, I'm afraid I didn't hear you. Could you please speak a bit more clear and slow?"),
+              on: { ENDSPEECH: "prompt" },
+            },
+            },
+        },
+      ConfirmMeetingTitle: {
+      initial: "prompt",
+      on: {
+        RECOGNISED: [
+          {
+            target: "info",
+            cond: (context ) => getIntent(context) === "reject" // in states like this one that use the getIntent function we could use the context.nluResult.prediction.intents[0].confidenceScore < 1, and/or >= 1 respectively.
+            actions: assign({
+              title: (context) => context.nluResult.query.replace(/\.$/g, ""),
+            }),
+          },
+          {
+            target: "organizeMeeting", //the confirmation state
+            cond: (context ) => getIntent(context) === "reject",
+            actions: assign({
+              title: (context) => context.nluResult.query.replace(/\.$/g, ""),
+            }),
+          },
+          {
+            target: ".nomatch",
+          },
+        ],
+        TIMEOUT: ".prompt",
+      },
+      states:{
+            noinput:{
+              id: "noinput",
+              entry: [say(
+                "I'm afraid I don't hear you."
+              )],
+              on: { ENDSPEECH: "prompt" },
+            },
+            ...promptFunction("Are you sure about your meetings title?", "Would you like to proceed?","Are you sure you would not like to change your meeting?"),
+            nomatch: {
+              id: "nomatch",
+              entry: say("Sorry, I'm afraid I didn't hear you. Could you please speak a bit more clear and slow?"),
+              on: { ENDSPEECH: "prompt" },
+            },
+            },
+        },
+    info: { // the next state
+      entry: send((context) => ({
+        type: "SPEAK",
+        value: `OK, ${context.title}`,
+      })),
+      on: { ENDSPEECH: "askDate" },
+      },
+*/
+
+//Note: However when I tried to ran it, it would display an error in the app when it would reach that point. (it wasn't able to find the confidence), or it would work but as if
+//the confidence threshold was never implemented.
