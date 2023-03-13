@@ -35,6 +35,7 @@ interface ChatInput {
 }
 
 interface SDSContext {
+  count: number;
   parameters: Parameters;
   asr: SpeechRecognition;
   tts: SpeechSynthesis;
@@ -63,6 +64,11 @@ interface SDSContext {
   name: any;
   text:any;
   entities:any;
+  help: any;
+  text: any;
+  helpme: any;
+  shutDown:any;
+  again: any;
 }
 
 type SDSEvent =

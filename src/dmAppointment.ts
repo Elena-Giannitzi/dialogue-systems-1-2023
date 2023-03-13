@@ -271,7 +271,7 @@ const getEntity = (context: SDSContext, category: string) => {
   const entities = context.nluResult.prediction.entities
   for (let i = 0; i < entities.length; i++) {
     if (entities[i].category === category) {
-      result.push(entities[i].text);
+      result.push(entities[i].text.replace("é","e").replace(/\.$/g, ""));
       return result
     }
   }
@@ -389,7 +389,7 @@ export const dmMachine: MachineConfig<SDSContext, any, SDSEvent> = {
           { target: ".info",
             cond: (context) => !!getEntity(context, "CelebName"),   //context.recResult[0].utterance.replace(/\.$/g, "").replace("Who is ", "").replace("What do you know about ","").replace("Tell me about ","").replace("What is a ","").replace("What's a ", "").replace("?","").replace(/\.$/g, "")
             actions: assign({personIs:  
-              (context) => {return context.nluResult.prediction.entities[0].text.replace("é","e").replace(/\.$/g, "")}
+              (context) => {return !!getEntity(context, "CelebName")}
             }),          
             },
           {
