@@ -56,8 +56,6 @@ interface SDSContext {
   daytime: any;
   answer: any;
   personIs:any;
-  answerWho: any;
-  affirm:any;
   info: any;
   prediction:any;
   topIntent:any;
@@ -69,6 +67,22 @@ interface SDSContext {
   helpme: any;
   shutDown:any;
   again: any;
+
+  //for the game
+
+  how:any;
+  who:any;
+  what: any;
+  when: any;
+  why: any;
+  family:any;
+  man:any;
+  computer:any;
+  landscape:any;
+  tv:any;
+  bed:any;
+  tool:any;
+  bottles:any;
 }
 
 type SDSEvent =

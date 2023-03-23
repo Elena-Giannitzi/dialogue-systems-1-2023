@@ -527,6 +527,10 @@ const getEntity = (context: SDSContext, entity: string) => {
   return false;
 };
 
+const backgroundInit = () => {
+  document.body.style.backgroundImage = 'url("./imagesGame/roomCorridor.jpg")';
+}
+
 const promptFunction = (pr1: any,pr2:any,pr3:any): StatesConfig<SDSContext, any, EventObject, BaseActionObject> => ({
     prompt: {
       initial: "choice",
@@ -609,6 +613,26 @@ const promptFunction = (pr1: any,pr2:any,pr3:any): StatesConfig<SDSContext, any,
   },},
 });
 
+function getImage(pictureBackground: any) {
+  const elem = document.getElementById("image");
+  if (elem) {
+    const img = elem.innerHTML = `<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-image: url('/img/${pictureBackground}.jpg'); background-size: cover; width: 100%; height: 100%;">
+    <img src="/img/${pictureBackground}.jpg" style="opacity: 0;"/>
+  </div>`;
+    return img;
+  }
+};
+
+
+// function getImage(thing: any) {
+//   const elem = document.getElementById("image");
+//   if (elem) {
+//     const img = elem.innerHTML = `<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+//     <img src="/img/${thing}.jpg" class="center"/>
+//   </div>`;
+//     return img
+//   }
+// };
 
 export const dmMachine: MachineConfig<SDSContext, any, SDSEvent> = {
   initial: 'idle',
@@ -729,7 +753,7 @@ export const dmMachine: MachineConfig<SDSContext, any, SDSEvent> = {
             )],
             on: { ENDSPEECH: "prompt" },
           },
-          ...promptFunction("Hello there! I'm your new personal Assistant. How would you like me to call you? You can always say 'help' to ask for further explanation.","Can you please tell me your name?","Last chance to tell me your name"),
+          ...promptFunction("Hello and welcome to way out! I have been watching you and I have to admit it's my great honor to finally meet you. I am surprised yet intrigued by your intellegent skills. You can even consider me as your biggest fan. I created this room especially for you.","Can you please tell me your name?","Last chance to tell me your name"),
           nomatch: {
             id: "nomatch",
             entry: say("Sorry, I'm afraid I didn't hear you. Could you please speak a bit more clear and slow?"),
@@ -804,7 +828,7 @@ export const dmMachine: MachineConfig<SDSContext, any, SDSEvent> = {
                           prompt: {
                           entry: send((context) => ({
                             type: "SPEAK",
-                            value: `Did I hear your name correctly, ${context.name}?`
+                            value: `Did I hear your name correctly, ${context.name} ${getImage("roomCorridor")}?`
                           })),
                           on: { ENDSPEECH: "ask" },
                     },
@@ -3021,6 +3045,13 @@ export const dmMachine: MachineConfig<SDSContext, any, SDSEvent> = {
   },
 };
 
+const kbRequest = (text: string) =>
+  fetch(
+    new Request(
+      `https://cors.eu.org/https://api.duckduckgo.com/?q=${text}&format=json&skip_disambig=1`
+    )
+  ).then((data) => data.json());
+
 // Part 2.3 here in prose and code ideas: 
 // Question: Can you implement a similar threshold for natural language understanding? How can 
 //it be combined with the ASR threshold? Justify your choice and provide a sketch implementation.
@@ -3245,10 +3276,3 @@ organizeMeeting: {
 
 //Note: However when I tried to ran it, it would display an error in the app when it would reach that point. (it wasn't able to find the confidence), or it would work but as if
 //the confidence threshold was never implemented.
-
-const kbRequest = (text: string) =>
-  fetch(
-    new Request(
-      `https://cors.eu.org/https://api.duckduckgo.com/?q=${text}&format=json&skip_disambig=1`
-    )
-  ).then((data) => data.json());

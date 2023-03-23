@@ -360,7 +360,7 @@ export const dmMachine: MachineConfig<SDSContext, any, SDSEvent> = {
         prompt: {
           entry: send((context) => ({
             type: "SPEAK",
-            value: `Did I get your name correctly, ${context.name}?`
+            value: `You picked the storage room. You have to solve three riddles here. You can choose between the TV, the portrait of the woman or the family photo. Be careful ${context.name}, one of them is a trap. What do you choose first?`
           })),
           on: { ENDSPEECH: "ask" },
         },
